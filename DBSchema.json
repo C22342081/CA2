@@ -1,0 +1,19 @@
+{ 
+  "Database schema": {
+    "year": "int",
+    "location": {
+      "code": "string",
+      "name": "string"
+    },
+    "consumption": [
+      {
+        "statistic_code": "string",
+        "statistic_label": "string",
+        "unit": "string",
+        "value": "int"
+      }
+      
+    ]
+  }
+}
+ 
