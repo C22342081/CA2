@@ -1,0 +1,51 @@
+import csv
+from pymongo import MongoClient
+
+# Connect to MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['CitySustainability']
+collection = db['WaterConsumption']
+
+# Initialize a dictionary to aggregate data
+data_dict = {}
+
+# Read the CSV file
+with open('water_consumption.csv', 'r', encoding='utf-8-sig') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        year = int(row['Year'])
+        location_code = row['C03815V04565']
+        location_name = row['All Counties and Dublin Postal Districts']
+        statistic_code = row['STATISTIC']
+        statistic_label = row['Statistic Label']
+        unit = row['UNIT']
+        value = float(row['VALUE'])
+
+        # Create a unique key for each year and location
+        key = (year, location_code)
+
+        if key not in data_dict:
+            data_dict[key] = {
+                'year': year,
+                'location': {
+                    'code': location_code,
+                    'name': location_name
+                },
+                'consumption': []
+            }
+
+        data_dict[key]['consumption'].append({
+            'statistic_code': statistic_code,
+            'statistic_label': statistic_label,
+            'unit': unit,
+            'value': value
+        })
+
+# Convert the data dictionary to a list of documents
+documents = list(data_dict.values())
+
+# Insert documents into MongoDB
+collection.insert_many(documents)
+
+print("Data imported successfully!")
+
